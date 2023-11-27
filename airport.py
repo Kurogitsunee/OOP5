@@ -83,11 +83,12 @@ class PlaneType():
     
 class Plane(PlaneType):
 
-    def __init__(self, name, boarding_time, series_number, fuel, status):
+    def __init__(self, name, boarding_time, series_number, fuel, status, land_or_fly):
         super().__init__(name, boarding_time)
         self.__series_number = series_number
         self.__fuel = fuel
-        self.__status = status
+        self.__status = status        
+        self.__land_or_fly = land_or_fly
 
     @property
     def series_number(self):
@@ -101,6 +102,10 @@ class Plane(PlaneType):
     def status(self):
         return self.__status
     
+    @property
+    def land_or_fly(self):
+        return self.__land_or_fly
+    
     @series_number.setter
     def series_number(self, series_number):
         self.__series_number = series_number
@@ -113,9 +118,13 @@ class Plane(PlaneType):
     def status(self, status):
         self.__status = status
 
+    @land_or_fly.setter
+    def land_or_fly(self, land_or_fly):
+        self.__land_or_fly = land_or_fly
+
     def take_line(self, line):
         line.is_busy = True
-        line.busy_by = Plane(self.name, self.boarding_time, self.series_number, self.fuel, self.status)
+        line.busy_by = Plane(self.name, self.boarding_time, self.series_number, self.fuel, self.status, self.land_or_fly)
         line.busy_time = self.boarding_time
 
     def fill_fuel(self):
@@ -127,9 +136,6 @@ class Plane(PlaneType):
 
     def land(self, line):
         self.take_line(line)
-
-    def __str__(self):
-        return f"Plane {self.name} - {self.series_number}.\nOccupy line for {self.boarding_time}.\nFuel = {self.fuel}.\nStatus = {self.status}"
 
     
 class Airport(Line, Plane):
@@ -166,9 +172,13 @@ class Airport(Line, Plane):
                     line.busy_time -= 1
                 else:
                     if line.busy_by != "Free":
-                        self.landed_planes.append(line.busy_by)
-                        line.busy_by = "Free"
-                        line.is_busy = False
+                        if line.busy_by.land_or_fly == "land":
+                            self.landed_planes.append(line.busy_by)
+                            line.busy_by = "Free"
+                            line.is_busy = False
+                        elif line.busy_by.land_or_fly == "fly":
+                            line.busy_by = "Free"
+                            line.is_busy = False
             
             if self.to_land:
                 sort_planes(self.to_land)
@@ -221,7 +231,7 @@ class Airport(Line, Plane):
                 if plane_status == 1:
                     plane_status -= 0.1
                 plane_fuel = randint(1, 100)
-                plane = Plane(plane_name, plane_boarding_time, plane_series_number, plane_fuel, plane_status)
+                plane = Plane(plane_name, plane_boarding_time, plane_series_number, plane_fuel, plane_status, "land")
                 self.to_land.append(plane)
             
             fly_probability = randint(0, 1)
@@ -229,6 +239,7 @@ class Airport(Line, Plane):
                 plane = choice(self.landed_planes)
                 plane.fill_fuel()
                 plane.status = 1
+                plane.land_or_fly = "fly"
                 self.to_fly.append(plane)
                 del self.landed_planes[self.landed_planes.index(plane)]
 
@@ -241,7 +252,7 @@ class Airport(Line, Plane):
             sleep(1)
 
 
-lines = [Line(int2ordinal(i), False, "Free", 0) for i in range(4)]
+lines = [Line(int2ordinal(i), False, "Free", 0) for i in range(10)]
 lines = dict.fromkeys(lines)
 airport = Airport(lines)
 airport.airport_work()
