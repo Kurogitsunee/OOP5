@@ -55,7 +55,7 @@ class Line():
         self.__busy_time = busy_time
 
     def __str__(self):
-        return f"Line\n-is busy = {self.is_busy}\n-busy by = {self.busy_by}\n-busy time = {self.busy_time}"
+        return f"Line {self.number}"
 
     
 class PlaneType():
@@ -251,8 +251,9 @@ class Airport(Line, Plane):
 
             sleep(1)
 
-
-lines = [Line(int2ordinal(i), False, "Free", 0) for i in range(10)]
-lines = dict.fromkeys(lines)
+"""
+lines = dict.fromkeys([Line(int2ordinal(i+1), False, "Free", 0) for i in range(11)])
 airport = Airport(lines)
 airport.airport_work()
+"""
+print(*dict.fromkeys([Line(int2ordinal(i+1), False, "Free", 0) for i in range(11)]), sep=', ', end='.\n')
