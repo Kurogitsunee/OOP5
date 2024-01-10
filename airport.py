@@ -251,9 +251,6 @@ class Airport(Line, Plane):
 
             sleep(1)
 
-"""
 lines = dict.fromkeys([Line(int2ordinal(i+1), False, "Free", 0) for i in range(11)])
 airport = Airport(lines)
 airport.airport_work()
-"""
-print(*dict.fromkeys([Line(int2ordinal(i+1), False, "Free", 0) for i in range(11)]), sep=', ', end='.\n')
